@@ -8,6 +8,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "systick_frt.h"
 
 #define USERTASK_STACK_SIZE configMINIMAL_STACK_SIZE
 #define IDLE_PRIO 0
@@ -31,7 +32,7 @@ static void setupHardware(void)
   // Warning: If you do not initialize the hardware clock, the timings will be inaccurate
   init_systick();
   init_gpio();
-  xQueue_lcd =XQueueCreate(QUEUE_LEN, sizeof(INT8U));
+  xQueue_lcd = xQueueCreate(QUEUE_LEN, sizeof(INT8U));
 
   xSemaphore_lcd = xSemaphoreCreateMutex();
 }
@@ -50,5 +51,6 @@ int main(void) {
 
     return 0;
 }
+
 
 
