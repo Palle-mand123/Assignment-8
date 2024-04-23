@@ -77,17 +77,18 @@ INT8U wr_ch_LCD( INT8U Ch )
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
-  return(
-          if(uxQueueSpacesAvailable(xQueue_lcd))
-      {
-          if(xSemaphoreTake(xSemaphore_lcd, portMAX_DELAY))
-          {
-              if (xQueueSend(xQueue_lcd, ch, portMAX_DELAY))
-                  {}
+    if(uxQueueSpacesAvailable(xQueue_lcd))
+    {
+        if(xSemaphoreTake(xSemaphore_lcd, portMAX_DELAY))
+        {
+            if(xQueueSend(xQueue_lcd, Ch, portMAX_DELAY))
+            {
+                xSemaphoreGive(xSemaphore_lcd);
+                return 1;
+            }
+        }
+    } return 0;
 
-          }
-      }
-          );
 }
 
 void wr_str_LCD( INT8U *pStr )
@@ -255,7 +256,7 @@ void out_LCD( INT8U Ch )
 
 void set_state(enum LCD_states new_state)
 {
-    my_state = new_state;  
+    my_state = new_state;
 }
 
 
@@ -293,21 +294,22 @@ void lcd_task(void *pvParameters)
           if(xSemaphoreTake(xSemaphore_lcd, portMAX_DELAY))
           {
               if (xQueueReceive(xQueue_lcd, &ch, portMAX_DELAY))
-              {}
+              {switch( ch )
+              {
+                case 0xFF:
+                  clr_LCD();
+                  break;
+                case ESC:
+                  set_state( LCD_ESC_RECEIVED );
+                  break;
+                default:
+                  out_LCD( ch );
+                  xSemaphoreGive(xSemaphore_lcd);
+              }}
 
           }
 
-        switch( ch )
-        {
-          case 0xFF:
-            clr_LCD();
-            break;
-          case ESC:
-            set_state( LCD_ESC_RECEIVED );
-            break;
-          default:
-            out_LCD( ch );
-        }
+
       }
       break;
 
@@ -317,24 +319,26 @@ void lcd_task(void *pvParameters)
                   if(xSemaphoreTake(xSemaphore_lcd, portMAX_DELAY))
                   {
                       if (xQueueReceive(xQueue_lcd, &ch, portMAX_DELAY))
-                      {}
+                      {if( ch & 0x80 )
+                      {
+                          Set_cursor( ch );
+                      }
+                      else
+                      {
+                        switch( ch )
+                        {
+                          case '@':
+                              home_LCD();
+                            break;
+                        }
+                      }
+                      set_state( LCD_READY );
+                      vTaskDelay(100/portTICK_RATE_MS);
+                      xSemaphoreGive(xSemaphore_lcd);
+                      }
 
                   }
-        if( ch & 0x80 )
-        {
-            Set_cursor( ch );
-        }
-        else
-        {
-          switch( ch )
-          {
-            case '@':
-                home_LCD();
-              break;
-          }
-        }
-        set_state( LCD_READY );
-        vTaskDelay(100/portTICK_RATE_MS);
+
       }
       break;
   }
@@ -342,6 +346,5 @@ void lcd_task(void *pvParameters)
 
 
 /****************************** End Of Module *******************************/
-
 
 
