@@ -65,7 +65,7 @@ const INT8U LCD_init_sequense[]=
 //INT8U LCD_buf_tail = 0;
 //INT8U LCD_buf_len  = 0;
 
-enum LCD_states LCD_state = LCD_POWER_UP;
+enum LCD_states my_state = LCD_POWER_UP;
 INT8U LCD_init;
 
 
@@ -253,6 +253,10 @@ void out_LCD( INT8U Ch )
   out_LCD_low( Ch );
 }
 
+void set_state(enum LCD_states new_state)
+{
+    my_state = new_state;  
+}
 
 
 void lcd_task(void *pvParameters)
@@ -262,7 +266,6 @@ void lcd_task(void *pvParameters)
 *   Function :
 ******************************************************************************/
 {
-
   INT8U ch;
 
   switch( my_state )
@@ -339,10 +342,6 @@ void lcd_task(void *pvParameters)
 
 
 /****************************** End Of Module *******************************/
-
-
-
-
 
 
 
