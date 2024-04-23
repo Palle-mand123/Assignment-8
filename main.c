@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "FreeRTOS.h"
 #include "tm4c123gh6pm.h"
+#include "systick_frt.h"
 #include "emp_type.h"
 #include "gpio.h"
 #include "lcd.h"
@@ -8,7 +9,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-#include "systick_frt.h"
+
 
 #define USERTASK_STACK_SIZE configMINIMAL_STACK_SIZE
 #define IDLE_PRIO 0
