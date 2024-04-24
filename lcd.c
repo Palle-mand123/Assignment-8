@@ -81,7 +81,7 @@ INT8U wr_ch_LCD( INT8U Ch )
     {
         if(xSemaphoreTake(xSemaphore_lcd, portMAX_DELAY))
         {
-            if(xQueueSend(xQueue_lcd, Ch, portMAX_DELAY))
+            if(xQueueSend(xQueue_lcd, &Ch, portMAX_DELAY))
             {
                 xSemaphoreGive(xSemaphore_lcd);
                 return 1;
@@ -268,7 +268,7 @@ void lcd_task(void *pvParameters)
 ******************************************************************************/
 {
   INT8U ch;
-
+while(1){
   switch( my_state )
   {
     case LCD_POWER_UP:
@@ -343,8 +343,9 @@ void lcd_task(void *pvParameters)
       break;
   }
 }
-
+}
 
 /****************************** End Of Module *******************************/
+
 
 
