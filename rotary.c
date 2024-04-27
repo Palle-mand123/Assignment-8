@@ -13,8 +13,7 @@
 
 
 
-volatile int encoder_position = 0;
-volatile char encoder_direction = 'U'; // 'U' for unknown, 'C' for CW, 'A' for CCW
+volatile int encoder_position = '0';
 
 
 
@@ -40,7 +39,7 @@ void init_rotary(void)
     // Configure the interrupt to trigger on both edges for PA5
     GPIO_PORTA_IBE_R |= 0x20;
 
-
+    
 }
 
 
@@ -55,34 +54,39 @@ void init_interrupt(void)
 
 void interrupt_handler(void)
 {
-    static int prev_A_state = 0; // Store the previous A state
-    static int prev_B_state = 0; // Store the previous B state
+    static int A = 0; // Store the previous A state
+    static int B = 0; // Store the previous B state
 
     // Check if the interrupt is from PA5
     if(GPIO_PORTA_RIS_R & 0x20) {
         // Clear the interrupt for PA5
         GPIO_PORTA_ICR_R |= 0x20;
 
-        // Read the current state of the B input
-        int B_state = (GPIO_PORTA_DATA_R & 0x40) >> 6;
 
-        // Read the current state of the A input
-        int A_state = (GPIO_PORTA_DATA_R & 0x20) >> 5;
 
-        // Determine direction using XOR between previous and current states
-        if((prev_A_state ^ A_state) == (prev_B_state ^ B_state)) {
+        if ((0b00100000) & (GPIO_PORTA_DATA_R)) {
+                A = 1;
+            } else {
+                A = 0;
+            }
+
+            // Read the current state of pin A6
+            if ((0b01000000) & (GPIO_PORTA_DATA_R)) {
+                B = 1;
+            } else {
+                B = 0;
+            }
+
+        if(A==B) {
             // The encoder has moved one position CCW
             encoder_position--;
-            encoder_direction = 'A';
+
         } else {
             // The encoder has moved one position CW
             encoder_position++;
-            encoder_direction = 'C';
         }
 
-        // Update previous states
-        prev_A_state = A_state;
-        prev_B_state = B_state;
+        wr_ch_LCD(encoder_position);
 
         // Toggle the edge detection configuration for PA5
         // Determine if the last interrupt was triggered by a rising or falling edge
@@ -94,6 +98,7 @@ void interrupt_handler(void)
             GPIO_PORTA_IEV_R |= 0x20;
         }
 
+
     }
 
 }
@@ -103,14 +108,14 @@ void interrupt_handler(void)
 
 
 
-// Periodically call this function from a task or directly inside the rotary task
 void rotary_task(void *pvParameters) {
   init_rotary();
   init_interrupt();
 
   while(1)
       {
-      wr_ch_LCD();
+      interrupt_handler();
+
 
       }
 
