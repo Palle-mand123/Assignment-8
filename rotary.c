@@ -40,14 +40,13 @@ void init_rotary(void)
     // Configure the interrupt to trigger on both edges for PA5
     GPIO_PORTA_IBE_R |= 0x20;
 
-    // PA6 and PA7 will not be configured for interrupts in this init function,
-    // unless you want them to have interrupt capability for some other reason.
+
 }
 
 
 void init_interrupt(void)
 {
-    NVIC_EN0_R |= 0x00010000; // Enable interrupt 16 for GPIO Port A using hexadecimal notation
+    NVIC_EN0_R |= 0x00010000; // Enable interrupt 16 for GPIO Port A 
 
     NVIC_PRI4_R = (NVIC_PRI4_R & 0xFF00FFFF) | 0x00600000;
 
@@ -64,10 +63,10 @@ void interrupt_handler(void)
         // Clear the interrupt for PA5
         GPIO_PORTA_ICR_R |= 0x20;
 
-        // Read the current state of the B input, assuming PA6 is B
+        // Read the current state of the B input
         int B_state = (GPIO_PORTA_DATA_R & 0x40) >> 6;
 
-        // Read the current state of the A input, assuming PA5 is A
+        // Read the current state of the A input
         int A_state = (GPIO_PORTA_DATA_R & 0x20) >> 5;
 
         // Determine direction using XOR between previous and current states
