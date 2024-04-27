@@ -1,15 +1,15 @@
 #include <stdint.h>
 #include "FreeRTOS.h"
 #include "tm4c123gh6pm.h"
-#include "systick_frt.h"
 #include "emp_type.h"
 #include "gpio.h"
 #include "lcd.h"
-//#include "key.h"
+
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-
+#include "systick_frt.h"
+#include "rotary.h"
 
 #define USERTASK_STACK_SIZE configMINIMAL_STACK_SIZE
 #define IDLE_PRIO 0
@@ -20,6 +20,7 @@
 
 QueueHandle_t xQueue_lcd;
 SemaphoreHandle_t xSemaphore_lcd;
+
 
 static void setupHardware(void)
 /*****************************************************************************
@@ -33,16 +34,19 @@ static void setupHardware(void)
   // Warning: If you do not initialize the hardware clock, the timings will be inaccurate
   init_systick();
   init_gpio();
+  //init_rotary();
+  //init_led();
   xQueue_lcd = xQueueCreate(QUEUE_LEN, sizeof(INT8U));
 
   xSemaphore_lcd = xSemaphoreCreateMutex();
+
 }
 
 int main(void) {
     // Initialize hardware peripherals (e.g., GPIO) here
     setupHardware();
     // Initialize the LCD module
-
+    xTaskCreate(rotary_task, "rotary", configMINIMAL_STACK_SIZE, NULL, LOW_PRIO, NULL);
     xTaskCreate(lcd_task, "LCDTask", configMINIMAL_STACK_SIZE, NULL, LOW_PRIO, NULL); // Add LCD task
 
     // Start the FreeRTOS scheduler
@@ -52,6 +56,9 @@ int main(void) {
 
     return 0;
 }
+
+
+
 
 
 
