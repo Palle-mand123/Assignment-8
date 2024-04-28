@@ -12,8 +12,8 @@
 #include "glob_def.h"
 
 
-
 volatile INT16U encoder_position = 0;
+
 
 
 
@@ -54,6 +54,10 @@ void init_interrupt(void)
 
 void send_encoder_position(INT16U p)
 {
+    wr_ch_LCD(p / 10000 + '0');
+    p = p % 10000;
+    wr_ch_LCD(p / 1000 + '0');
+    p = p % 1000;
     wr_ch_LCD(p / 100 + '0');
     p = p % 100;
     wr_ch_LCD(p / 10 + '0');
@@ -64,6 +68,7 @@ void send_encoder_position(INT16U p)
 
 void interrupt_handler(void)
 {
+
     static int A = 0; // Store the previous A state
     static int B = 0; // Store the previous B state
 
@@ -71,7 +76,9 @@ void interrupt_handler(void)
     if(GPIO_PORTA_RIS_R & 0x20) {
         // Clear the interrupt for PA5
         GPIO_PORTA_ICR_R |= 0x20;
-        home_LCD();
+
+
+
 
 
         if ((0b00100000) & (GPIO_PORTA_DATA_R)) {
@@ -96,7 +103,7 @@ void interrupt_handler(void)
             encoder_position++;
         }
 
-
+        home_LCD();
         send_encoder_position(encoder_position);
 
 
