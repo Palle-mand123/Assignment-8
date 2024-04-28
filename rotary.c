@@ -14,7 +14,7 @@
 
 volatile INT16U encoder_position = 0;
 
-
+extern QueueHandle_t xQueue_lcd;
 
 
 
@@ -103,9 +103,7 @@ void interrupt_handler(void)
             encoder_position++;
         }
 
-        vTaskDelay(1);
-        home_LCD();
-        send_encoder_position(encoder_position);
+
 
 
 
@@ -132,10 +130,12 @@ void interrupt_handler(void)
 void rotary_task(void *pvParameters) {
   init_rotary();
   init_interrupt();
-
   while(1)
       {
+      vTaskDelay(10);
       interrupt_handler();
+      home_LCD();
+      send_encoder_position(encoder_position);
 
 
       }
