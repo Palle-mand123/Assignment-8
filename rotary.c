@@ -103,6 +103,7 @@ void interrupt_handler(void)
             encoder_position++;
         }
 
+        vTaskDelay(1);
         home_LCD();
         send_encoder_position(encoder_position);
 
