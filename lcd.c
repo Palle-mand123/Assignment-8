@@ -226,7 +226,11 @@ void home_LCD()
 *   Function : Return cursor to the home position.
 ******************************************************************************/
 {
-  wr_ctrl_LCD( 0x02 );
+    if(xSemaphoreTake(xSemaphore_lcd, portMAX_DELAY))
+    {
+        wr_ctrl_LCD( 0x02 );
+        xSemaphoreGive(xSemaphore_lcd);
+    }
 }
 
 void Set_cursor( INT8U Ch )
@@ -346,6 +350,11 @@ while(1){
 }
 
 /****************************** End Of Module *******************************/
+
+
+
+
+
 
 
 
