@@ -39,6 +39,9 @@
 void wr_str_LCD( INT8U* );
 void move_LCD( INT8U, INT8U );
 INT8U wr_ch_LCD( INT8U Ch );
+void wr_str_LCD( INT8U *pStr );
+void clr_LCD();
+void home_LCD();
 
 void lcd_task(void *pvParameters);
 /*****************************************************************************
