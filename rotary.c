@@ -14,8 +14,6 @@
 
 volatile INT16U encoder_position = 0;
 
-extern QueueHandle_t xQueue_lcd;
-
 
 
 void init_rotary(void)
