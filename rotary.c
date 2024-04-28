@@ -82,11 +82,6 @@ void interrupt_handler(void)
     // Check if the interrupt is from PA5
     if(GPIO_PORTA_RIS_R & 0x20) {
 
-
-
-
-
-
         if ((0b00100000) & (GPIO_PORTA_DATA_R)) {
                 A = 1;
             } else {
@@ -101,12 +96,8 @@ void interrupt_handler(void)
             }
 
             int AB = (A << 1) | B;
-
             int prevAB = (prevA << 1)| prevB;
-
             INT8U YY = AB ^ prevAB;
-
-
 
         if(A==B) {
             if(YY==0x01)
@@ -126,16 +117,9 @@ void interrupt_handler(void)
                 encoder_position--;
             }
             // The encoder has moved one position CW
-
         }
         prevA=A;
         prevB=B;
-
-
-
-
-
-
 
         // Toggle the edge detection configuration for PA5
                 GPIO_PORTA_IEV_R ^= 0x20;
@@ -147,9 +131,6 @@ void interrupt_handler(void)
                     // Last interrupt was a falling edge, set to rising edge
                     GPIO_PORTA_IEV_R |= 0x20;
                 }
-
-
-
     }
 
 }
