@@ -54,6 +54,8 @@ void init_interrupt(void)
 
 void send_encoder_position(INT16U p)
 {
+    if(p !=0)
+    {
     wr_ch_LCD(p / 10000 + '0');
     p = p % 10000;
     wr_ch_LCD(p / 1000 + '0');
@@ -63,14 +65,15 @@ void send_encoder_position(INT16U p)
     wr_ch_LCD(p / 10 + '0');
     p = p % 10;
     wr_ch_LCD(p + '0');
+    }
 
 }
 
 void interrupt_handler(void)
 {
 
-    static int A = 0; 
-    static int B = 0;
+    static int A = 0; // Store the previous A state
+    static int B = 0; // Store the previous B state
 
     // Check if the interrupt is from PA5
     if(GPIO_PORTA_RIS_R & 0x20) {
@@ -108,6 +111,7 @@ void interrupt_handler(void)
 
 
         // Toggle the edge detection configuration for PA5
+        GPIO_PORTA_IEV_R ^= 0x20;
         // Determine if the last interrupt was triggered by a rising or falling edge
         if(GPIO_PORTA_IEV_R & 0x20) {
             // Last interrupt was a rising edge, set to falling edge
@@ -121,7 +125,6 @@ void interrupt_handler(void)
     }
 
 }
-
 
 
 
