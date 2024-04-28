@@ -33,11 +33,14 @@ void init_rotary(void)
     // Disable analog functionality for PA5-PA7
     GPIO_PORTA_AMSEL_R &= ~0xE0;
 
-    // Unmask the interrupt for PA5
-    GPIO_PORTA_IM_R |= 0x20;
+     // Make interrupt edge-triggered for PA5
+    GPIO_PORTA_IS_R &= ~0x20;
 
     // Configure the interrupt to trigger on both edges for PA5
     GPIO_PORTA_IBE_R |= 0x20;
+
+      // Unmask the interrupt for PA5
+    GPIO_PORTA_IM_R |= 0x20;
 
 
 }
@@ -72,8 +75,8 @@ void send_encoder_position(INT16U p)
 void interrupt_handler(void)
 {
 
-    static int A = 0; // Store the previous A state
-    static int B = 0; // Store the previous B state
+    static int A = 0; 
+    static int B = 0; 
 
     // Check if the interrupt is from PA5
     if(GPIO_PORTA_RIS_R & 0x20) {
