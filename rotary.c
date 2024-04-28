@@ -14,6 +14,8 @@
 
 volatile INT16U encoder_position = 0;
 
+extern QueueHandle_t xQueue_lcd;
+
 
 
 void init_rotary(void)
@@ -72,14 +74,14 @@ void send_encoder_position(INT16U p)
 
 void interrupt_handler(void)
 {
-
-    static int A = 0; 
-    static int B = 0; 
+    static int prevA=0;
+    static int prevB=0;
+    static int A ;
+    static int B ;
 
     // Check if the interrupt is from PA5
     if(GPIO_PORTA_RIS_R & 0x20) {
-        // Clear the interrupt for PA5
-        GPIO_PORTA_ICR_R |= 0x20;
+
 
 
 
@@ -98,29 +100,54 @@ void interrupt_handler(void)
                 B = 0;
             }
 
+            int AB = (A << 1) | B;
+
+            int prevAB = (prevA << 1)| prevB;
+
+            INT8U YY = AB ^ prevAB;
+
+
+
         if(A==B) {
-            // The encoder has moved one position CCW
-            encoder_position--;
+            if(YY==0x01)
+            {
+                encoder_position++;
+            }else if(YY==0x02)
+            {
+                encoder_position--;
+            }
 
         } else {
+            if(YY==0x02)
+            {
+                encoder_position++;
+            }else if(YY==0x01)
+            {
+                encoder_position--;
+            }
             // The encoder has moved one position CW
-            encoder_position++;
+
         }
+        prevA=A;
+        prevB=B;
+
+
 
 
 
 
 
         // Toggle the edge detection configuration for PA5
-        GPIO_PORTA_IEV_R ^= 0x20;
-        // Determine if the last interrupt was triggered by a rising or falling edge
-        if(GPIO_PORTA_IEV_R & 0x20) {
-            // Last interrupt was a rising edge, set to falling edge
-            GPIO_PORTA_IEV_R &= ~0x20;
-        } else {
-            // Last interrupt was a falling edge, set to rising edge
-            GPIO_PORTA_IEV_R |= 0x20;
-        }
+                GPIO_PORTA_IEV_R ^= 0x20;
+                // Determine if the last interrupt was triggered by a rising or falling edge
+                if(GPIO_PORTA_IEV_R & 0x20) {
+                    // Last interrupt was a rising edge, set to falling edge
+                    GPIO_PORTA_IEV_R &= ~0x20;
+                } else {
+                    // Last interrupt was a falling edge, set to rising edge
+                    GPIO_PORTA_IEV_R |= 0x20;
+                }
+
 
 
     }
