@@ -13,7 +13,7 @@
 
 
 
-volatile int encoder_position = '0';
+volatile INT16U encoder_position = 0;
 
 
 
@@ -39,16 +39,26 @@ void init_rotary(void)
     // Configure the interrupt to trigger on both edges for PA5
     GPIO_PORTA_IBE_R |= 0x20;
 
-    
+
 }
 
 
 void init_interrupt(void)
 {
-    NVIC_EN0_R |= 0x00010000; // Enable interrupt 16 for GPIO Port A 
+    NVIC_EN0_R |= 0x00010000; // Enable interrupt 16 for GPIO Port A
 
     NVIC_PRI4_R = (NVIC_PRI4_R & 0xFF00FFFF) | 0x00600000;
 
+
+}
+
+void send_encoder_position(INT16U p)
+{
+    wr_ch_LCD(p / 100 + '0');
+    p = p % 100;
+    wr_ch_LCD(p / 10 + '0');
+    p = p % 10;
+    wr_ch_LCD(p + '0');
 
 }
 
@@ -85,8 +95,12 @@ void interrupt_handler(void)
             // The encoder has moved one position CW
             encoder_position++;
         }
+        clr_LCD();
+        vTaskDelay(20);
 
-        wr_ch_LCD(encoder_position);
+        send_encoder_position(encoder_position);
+
+
 
         // Toggle the edge detection configuration for PA5
         // Determine if the last interrupt was triggered by a rising or falling edge
@@ -120,4 +134,3 @@ void rotary_task(void *pvParameters) {
       }
 
 }
-
