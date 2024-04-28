@@ -71,7 +71,7 @@ void interrupt_handler(void)
     if(GPIO_PORTA_RIS_R & 0x20) {
         // Clear the interrupt for PA5
         GPIO_PORTA_ICR_R |= 0x20;
-
+        home_LCD();
 
 
         if ((0b00100000) & (GPIO_PORTA_DATA_R)) {
@@ -95,8 +95,7 @@ void interrupt_handler(void)
             // The encoder has moved one position CW
             encoder_position++;
         }
-        clr_LCD();
-        vTaskDelay(20);
+
 
         send_encoder_position(encoder_position);
 
